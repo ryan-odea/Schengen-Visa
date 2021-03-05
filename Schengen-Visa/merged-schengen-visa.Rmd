@@ -24,7 +24,7 @@ pacman::p_load(tidyverse,
 ```{r, eval=FALSE}
 top40 <- read_excel("Mini case studies top 40 edit.xlsx", 
                     sheet = "Sheet1")
-HPI <- fread(file="tabfolder/global_ranking_2019.tab", header=T)
+HPI <- read.csv(file="tabfolder/global_ranking_2019.tab", header=T)
 
 top40$Country <- str_c(top40$Country,' ')
 
@@ -61,7 +61,7 @@ write.csv(df, "df.csv")
 ```
 
 ```{r}
-df<-fread(file="df.csv",header = T)
+df<-read.csv(file="df.csv",header = T)
 df$continent <-  c("Asia", "Asia", "Europe", "Africa", "Africa","Europe", "Europe","South America", "Europe", "Europe", "South America", "North America", "North America","Europe", "North America","Oceania", "North America","North America","North America","Asia", "Oceania", "North America", "Europe","Oceania", "North America","North America", "Asia", "Oceania", "Europe","Oceania","Oceania","Europe","Oceania", "Europe", "Europe","Europe", "Asia", "NA")
 
 df$log_p <- log(df$population)
@@ -352,8 +352,9 @@ bin.subset$group <- cut(bin.subset$ranking,
                         include.lowest = TRUE,
                         right = FALSE,
                         labels = labels)
+
 #creating a grouping id
-id.var <- bin.subset[c("country", "group")]
+id.var <- bin.subset %>% select(c("country", "group"))
 grouping.df <- merge(df, id.var, by = "country")
 
 #subsetting by given group
@@ -535,7 +536,7 @@ anim_save("80-90-Rankings.gif")
 
 ## schengen-Visa Comparison EDA
 ```{r}
-top40 <- fread("E:/Boston University/MA676/consulting1/simu/Mini case studies top 40 edit.xlsx", 
+top40 <- read_excel("Mini case studies top 40 edit.xlsx", 
                     sheet = "Sheet1")
 df <- list.files(path = "tabfolder", pattern = "*.tab", full.names = TRUE) %>% 
   map_dfr(fread, header = TRUE, .id = "year") %>% mutate(year = as.integer(year) + 2005)
@@ -550,7 +551,7 @@ df_sch$schyear <- substr(df_sch$`Schengen Visa waiver Y/N (date)`,4,7) %>%
   as.numeric() 
 
 df_sch <- filter(df_sch,schyear>=2006) %>% 
-  select(., c(1,10,11,12,14))
+  select(,c(1,10,11,12,14))
 colnames(df_sch)[1] <- "country"
 
 #unique(df_sch$schyear)
@@ -562,12 +563,9 @@ sch_13 <- filter(df_sch,schyear==2013)
 sch_14 <- filter(df_sch,schyear==2014)
 sch_15 <- filter(df_sch,schyear==2015)
 sch_17 <- filter(df_sch,schyear==2017)
-
 ```
 
 ```{r}
-
-  
 ani09 <- na.omit(sch_09) %>%
   ggplot(aes(x = year, y = access, color = country, group = country))+ 
   geom_point() +
