@@ -551,7 +551,7 @@ df_sch$schyear <- substr(df_sch$`Schengen Visa waiver Y/N (date)`,4,7) %>%
   as.numeric() 
 
 df_sch <- filter(df_sch,schyear>=2006) %>% 
-  select(,c(1,10,11,12,14))
+  select(., c(1,10,11,12,14))
 colnames(df_sch)[1] <- "country"
 
 #unique(df_sch$schyear)
