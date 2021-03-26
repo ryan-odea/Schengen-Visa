@@ -1,11 +1,14 @@
 ---
 title: "R Notebook"
-output: html_notebook
 author: "Jiachen Feng, Ryan O'Dea, Simu Huang, Haoran Su, Minqi Li"
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup,include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(Warning = FALSE)
 pacman::p_load(tidyverse,
                magrittr,
                ggrepel,
@@ -149,7 +152,9 @@ correlation<-round(cor(df_cor),2)
 
 correlation<-as.matrix(correlation)
 
-corrplot(correlation,method = "color", addCoef.col = "grey", addCoefasPercent=TRUE, tl.col = "black", tl.srt = 45, tl.cex=0.8, number.cex = 0.5) 
+png("corr_plot.png")
+corr_plot <- corrplot(correlation,method = "color", addCoef.col = "grey", addCoefasPercent=TRUE, tl.col = "black", tl.srt = 45, tl.cex=0.8, number.cex = 0.5) 
+dev.off()
 
 ```
 
@@ -184,14 +189,15 @@ ggplot(data = df, mapping = aes(x = log_gni, y = access, color = continent))+
 
 ```{r}
 df$log_gni<-log(df$gni)
-ggplot(data = df, mapping = aes(x = log_gni, y = access, color = continent,shape=continent))+
+loggni_mob_score <- ggplot(data = df, mapping = aes(x = log_gni, y = access, color = continent,shape=continent))+
   geom_point(size=2)+
   geom_label_repel(aes(fill=continent),label=df$Country,fontface="bold", color="white", 
                    box.padding=unit(0.5, "lines"), point.padding=unit(.2, "lines"), 
                    segment.colour = "grey50",max.overlaps = 13) +
   labs(x="Log(GNI)",y="Mobility Score",title="Log(GNI) vs Mobility Score")+
   theme(plot.title = element_text(hjust = 0.5))
-  
+
+ggsave("loggni_vs_mob_score_cluster.png", loggni_mob_score, width = 10, height = 10, dpi = 150)  
 ```
 
 ### log_populatin vs mobility score
@@ -206,6 +212,7 @@ ggplot(data = df, mapping = aes(x = log_p, y = access, color = continent,shape=c
   theme_classic(base_size = 14)+
   theme(plot.title = element_text(hjust = 0.5))
 ```
+
 ```{r}
 #log_populatin vs mobility score
 ggplot(data = df, mapping = aes(x = log_p, y = access, color = continent))+
@@ -216,7 +223,7 @@ ggplot(data = df, mapping = aes(x = log_p, y = access, color = continent))+
 
 ### Development v.s. Ranking
 ```{r}
-ggplot(df,aes(x=development_level,y=access)) + 
+dev_mob_violin <- ggplot(df,aes(x=development_level,y=access)) + 
   geom_violin(aes(color=development_level),fill="gray80",alpha=0.5) +
   geom_sina(aes(color=development_level), alpha=0.25) + 
   labs(x="Development Level",y="Mobility Score",title="Development vs  Mobility Score") +
@@ -225,6 +232,8 @@ ggplot(df,aes(x=development_level,y=access)) +
         panel.grid.minor=element_line(color="gray90",size=0.1),
         plot.title = element_text(hjust=0.5)) +
   guides(color=guide_legend(override.aes=list(size=3)))
+
+ggsave("dev_mov_violin.png", dev_mob_violin)
 ```
 
 ### log_territory vs mobility score
@@ -331,7 +340,7 @@ anim <- df %>%
 
 ```
 
-```{r developing-'TS'}
+```{r developing-ts}
 #starting with 2006
 bin.subset <- subset(df, year == 2006)
 breaks <- c(0, 10, 20, 30, 40, 50,  60, 70, 80, 90, 100, 110)
@@ -505,32 +514,34 @@ ggsave(p7, width = 16, height = 16, dpi = 300, device = "png", filename = "60-70
 ggsave(p8, width = 16, height = 16, dpi = 300, device = "png", filename = "70-80-rankings-plot.png")
 ggsave(p9, width = 16, height = 16, dpi = 300, device = "png", filename = "80-90-rankings-plot.png")
 
-animate(subset.0.10.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
-anim_save("0-10-Rankings.gif")
+#Uncomment functions to rewrite animations
 
-animate(subset.10.20.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
-anim_save("10-20-Rankings.gif")
+#animate(subset.0.10.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
+#anim_save("0-10-Rankings.gif")
 
-animate(subset.20.30.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
-anim_save("20-30-Rankings.gif")
+#animate(subset.10.20.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
+#anim_save("10-20-Rankings.gif")
 
-animate(subset.30.40.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
-anim_save("30-40-Rankings.gif")
+#animate(subset.20.30.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
+#anim_save("20-30-Rankings.gif")
 
-animate(subset.40.50.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
-anim_save("40-50-Rankings.gif")
+#animate(subset.30.40.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
+#anim_save("30-40-Rankings.gif")
 
-animate(subset.50.60.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
-anim_save("50-60-Rankings.gif")
+#animate(subset.40.50.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
+#anim_save("40-50-Rankings.gif")
 
-animate(subset.60.70.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
-anim_save("60-70-Rankings.gif")
+#animate(subset.50.60.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
+#anim_save("50-60-Rankings.gif")
 
-animate(subset.70.80.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
-anim_save("70-80-Rankings.gif")
+#animate(subset.60.70.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
+#anim_save("60-70-Rankings.gif")
 
-animate(subset.80.90.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
-anim_save("80-90-Rankings.gif")
+#animate(subset.70.80.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
+#anim_save("70-80-Rankings.gif")
+
+#animate(subset.80.90.anim, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
+#anim_save("80-90-Rankings.gif")
 
 ```
 
@@ -573,7 +584,7 @@ ani09 <- na.omit(sch_09) %>%
   geom_vline(xintercept = sch_09$schyear,linetype="dotted",col='red',size=1.2)+
   annotate("text",x=sch_09$schyear,y=175,label="Schengen Visa-Waiver",col='red')+
   geom_text(aes(label = ranking, vjust = 1.1, hjust = -0.5, angle = 45))+
-  labs(title = "Change of Access from 2006 (Rank of 2006: (0-10] )", subtitle = "{closest_state}", y = "Access", x = "Year", col = "Country") + 
+  labs(title = "Change of Access from 2009 Schengen Visa)", subtitle = "{closest_state}", y = "Access", x = "Year", col = "Country") + 
   theme(legend.position = "none") +
   scale_x_continuous(breaks=seq(2006, 2019, 1))+
   transition_states(states = country, state_length = 10)
@@ -585,7 +596,7 @@ ani10 <- na.omit(sch_10) %>%
   geom_vline(xintercept = sch_10$schyear,linetype="dotted",col='red',size=1.2)+
   annotate("text",x=sch_10$schyear,y=175,label="Schengen Visa-Waiver",col='red')+
   geom_text(aes(label = ranking, vjust = 1.1, hjust = -0.5, angle = 45))+
-  labs(title = "Change of Access from 2006 (Rank of 2006: (0-10] )", subtitle = "{closest_state}", y = "Access", x = "Year", col = "Country") + 
+  labs(title = "Change of Access from 2010 Schengen Visa", subtitle = "{closest_state}", y = "Access", x = "Year", col = "Country") + 
   theme(legend.position = "none") +
   scale_x_continuous(breaks=seq(2006, 2019, 1))+
   transition_states(states = country, state_length = 10)
@@ -597,7 +608,7 @@ ani11 <- na.omit(sch_11) %>%
   geom_vline(xintercept = sch_11$schyear,linetype="dotted",col='red',size=1.2)+
   annotate("text",x=sch_11$schyear,y=175,label="Schengen Visa-Waiver",col='red')+
   geom_text(aes(label = ranking, vjust = 1.1, hjust = -0.5, angle = 45))+
-  labs(title = "Change of Access from 2006 (Rank of 2006: (0-10] )", subtitle = "{closest_state}", y = "Access", x = "Year", col = "Country") + 
+  labs(title = "Change of Access from 2011 Schengen Visa", subtitle = "{closest_state}", y = "Access", x = "Year", col = "Country") + 
   theme(legend.position = "none") +
   scale_x_continuous(breaks=seq(2006, 2019, 1))+
   transition_states(states = country, state_length = 10)
@@ -609,7 +620,7 @@ ani13 <- na.omit(sch_13) %>%
   geom_vline(xintercept = sch_13$schyear,linetype="dotted",col='red',size=1.2)+
   annotate("text",x=sch_13$schyear,y=175,label="Schengen Visa-Waiver",col='red')+
   geom_text(aes(label = ranking, vjust = 1.1, hjust = -0.5, angle = 45))+
-  labs(title = "Change of Access from 2006 (Rank of 2006: (0-10] )", subtitle = "{closest_state}", y = "Access", x = "Year", col = "Country") + 
+  labs(title = "Change of Access from 2013 Schengen Visa", subtitle = "{closest_state}", y = "Access", x = "Year", col = "Country") + 
   theme(legend.position = "none") +
   scale_x_continuous(breaks=seq(2006, 2019, 1))+
   transition_states(states = country, state_length = 10)
@@ -621,7 +632,7 @@ ani14 <- na.omit(sch_14) %>%
   geom_vline(xintercept = sch_14$schyear,linetype="dotted",col='red',size=1.2)+
   annotate("text",x=sch_14$schyear,y=175,label="Schengen Visa-Waiver",col='red')+
   geom_text(aes(label = ranking, vjust = 1.1, hjust = -0.5, angle = 45))+
-  labs(title = "Change of Access from 2006 (Rank of 2006: (0-10] )", subtitle = "{closest_state}", y = "Access", x = "Year", col = "Country") + 
+  labs(title = "Change of Access from 2014 Schengen Visa", subtitle = "{closest_state}", y = "Access", x = "Year", col = "Country") + 
   theme(legend.position = "none") +
   scale_x_continuous(breaks=seq(2006, 2019, 1))+
   transition_states(states = country, state_length = 10)
@@ -633,7 +644,7 @@ ani15 <- na.omit(sch_15) %>%
   geom_vline(xintercept = sch_15$schyear,linetype="dotted",col='red',size=1.2)+
   annotate("text",x=sch_15$schyear,y=175,label="Schengen Visa-Waiver",col='red')+
   geom_text(aes(label = ranking, vjust = 1.1, hjust = -0.5, angle = 45))+
-  labs(title = "Change of Access from 2006 (Rank of 2006: (0-10] )", subtitle = "{closest_state}", y = "Access", x = "Year", col = "Country") + 
+  labs(title = "Change of Access from 2015 Schengen Visa", subtitle = "{closest_state}", y = "Access", x = "Year", col = "Country") + 
   theme(legend.position = "none") +
   scale_x_continuous(breaks=seq(2006, 2019, 1))+
   transition_states(states = country, state_length = 10)
@@ -645,31 +656,33 @@ ani17 <- na.omit(sch_17) %>%
   geom_vline(xintercept = sch_17$schyear,linetype="dotted",col='red',size=1.2)+
   annotate("text",x=sch_17$schyear,y=175,label="Schengen Visa-Waiver",col='red')+
   geom_text(aes(label = ranking, vjust = 1.1, hjust = -0.5, angle = 45))+
-  labs(title = "Change of Access from 2006 (Rank of 2006: (0-10] )", subtitle = "{closest_state}", y = "Access", x = "Year", col = "Country") + 
+  labs(title = "Change of Access from 2017 Schengen Visa", subtitle = "{closest_state}", y = "Access", x = "Year", col = "Country") + 
   theme(legend.position = "none") +
   scale_x_continuous(breaks=seq(2006, 2019, 1))+
   transition_states(states = country, state_length = 10)
 
 
-animate(ani09, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
-anim_save("schengen09.gif")
+#Uncomment functions to rewrite animations
 
-animate(ani10, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
-anim_save("schengen10.gif")
+#animate(ani09, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
+#anim_save("schengen09.gif")
 
-animate(ani11, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
-anim_save("schengen11.gif")
+#animate(ani10, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
+#anim_save("schengen10.gif")
 
-animate(ani13, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
-anim_save("schengen13.gif")
+#animate(ani11, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
+#anim_save("schengen11.gif")
 
-animate(ani14, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
-anim_save("schengen14.gif")
+#animate(ani13, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
+#anim_save("schengen13.gif")
 
-animate(ani15, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
-anim_save("schengen15.gif")
+#animate(ani14, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
+#anim_save("schengen14.gif")
 
-animate(ani17, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
-anim_save("schengen17.gif")
+#animate(ani15, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
+#anim_save("schengen15.gif")
+
+#animate(ani17, duration = 20, fps = 30, width = 2000, height = 2000, res = 300, renderer = gifski_renderer(loop = T))
+#anim_save("schengen17.gif")
   
 ```
